@@ -1,24 +1,30 @@
-async function seeBusByStopCode() {
+async function getBusesByPostcode(postCode, stopTypes) {
 
-    let lat = 51.5539;
-    let lon = -0.1468;
-    const stopTypes = "NaptanPublicBusCoachTram";
-
-    let postCodesAPIResponse = await fetch('ttps://api.postcodes.io/postcodes');
+    let postCodesAPIResponse = await fetch('https://api.postcodes.io/postcodes/' + postCode);
+    let postCodesAPIData = await postCodesAPIResponse.json();
+    let lat = postCodesAPIData.result.latitude;
+    let lon = postCodesAPIData.result.longitude;
 
     let tflStopCodeAPIresponse = await fetch(`https://api.tfl.gov.uk/StopPoint/?lat=${lat}&lon=${lon}&stopTypes=${stopTypes}`);
     let stopCodeData = await tflStopCodeAPIresponse.json();
 
-    console.log(stopCodeData.stopPoints[0].id);
-    console.log(stopCodeData.stopPoints[1].id);
+    let firstStopCode = stopCodeData.stopPoints[0].id;
+   // let secondStopCode = stopCodeData.stopPoints[1].id;
 
-    let tflBusStopsAPIResponse = await fetch('https://api.tfl.gov.uk/StopPoint/490008660S/Arrivals');
-    let tflBusStops = await tflBusStopsAPIResponse.json();
-    for (let busInfo of tflBusStops) {
-        console.log(busInfo.expectedArrival);
+    let firstBusStopsAPIResponse = await fetch('https://api.tfl.gov.uk/StopPoint/' + firstStopCode + '/Arrivals');
+    let firstBusStops = await firstBusStopsAPIResponse.json();
+    for (let busInfo of firstBusStops) {
+        console.log('First Bus Stop: ' + busInfo.expectedArrival);
+
+    }
+
+    let secondBusStopsAPIResponse = await fetch('https://api.tfl.gov.uk/StopPoint/' + secondStopCode + '/Arrivals');
+    let secondBusStops = await secondBusStopsAPIResponse.json();
+    for (let busInfo of secondBusStops) {
+        console.log('Second Bus Stop: ' + busInfo.expectedArrival);
 
     }
 
 }
 
-seeBusByStopCode();
+getBusesByPostcode("HA54UT", "NaptanPublicBusCoachTram");
